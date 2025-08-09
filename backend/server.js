@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ debug: true }); // Enable debug logging
 const express = require('express');
 const cors = require('cors');
 const admin = require('firebase-admin');
@@ -6,9 +6,12 @@ const path = require('path');
 
 const app = express();
 
-// Routes
-const placementRoutes = require('./routes/placementRoutes');
-const authRoutes = require('./routes/authRoutes');
+// Verify environment variables
+console.log('Environment variables:', {
+  FRONTEND_URL: process.env.FRONTEND_URL,
+  NODE_ENV: process.env.NODE_ENV,
+  PORT: process.env.PORT
+});
 
 // Middleware
 app.use(cors({
@@ -18,84 +21,58 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Firebase Admin Setup using environment variables
+// Firebase Admin Setup
 try {
-  const serviceAccount = {
-    type: "service_account",
-    project_id: process.env.project_id,
-    private_key_id: process.env.private_key_id,
-    private_key: process.env.private_key.replace(/\\n/g, '\n'),
-    client_email: process.env.client_email,
-    client_id: process.env.client_id,
-    auth_uri: process.env.auth_uri,
-    token_uri: process.env.token_uri,
-    auth_provider_x509_cert_url: process.env.auth_provider_x509_cert_url,
-    client_x509_cert_url: process.env.client_x509_cert_url,
-    universe_domain: process.env.universe_domain
-  };
-
+  const serviceAccount = require('./config/firebase-service-account.json');
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: process.env.FIREBASE_DATABASE_URL
   });
 } catch (error) {
-  console.error('Firebase initialization error:', error.message);
+  console.error('Firebase initialization error:', error);
   process.exit(1);
 }
 
-// API Routes
-app.use('/api/placement', placementRoutes);
-app.use('/api/auth', authRoutes);
+// Import routes with error handling
+let placementRoutes, authRoutes;
+try {
+  placementRoutes = require('./routes/placementRoutes');
+  authRoutes = require('./routes/authRoutes');
+} catch (error) {
+  console.error('Route loading error:', error);
+  process.exit(1);
+}
 
-// Serve frontend from backend/public in production
+// API Routes - wrap in try-catch to catch path-to-regexp errors
+try {
+  app.use('/api/placement', placementRoutes);
+  app.use('/api/auth', authRoutes);
+} catch (error) {
+  console.error('Route registration error:', error);
+  process.exit(1);
+}
+
+// Serve static files from React app in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'public')));
-  
-  // Handle React routing
+  app.use(express.static(path.join(__dirname, '../frontend/build')));
   app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
   });
 }
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    status: 'healthy',
-    environment: process.env.NODE_ENV || 'development'
-  });
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({
-    success: false,
-    message: 'Internal Server Error',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined
-  });
-});
-
+// Start server
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
 });
 
-// Handle unhandled promise rejections
+// Error handlers
 process.on('unhandledRejection', (err) => {
-  console.error(`Unhandled Rejection: ${err.message}`);
+  console.error('Unhandled Rejection:', err);
   server.close(() => process.exit(1));
 });
 
-// Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
-  console.error(`Uncaught Exception: ${err.message}`);
+  console.error('Uncaught Exception:', err);
   server.close(() => process.exit(1));
-});
-
-// Handle SIGTERM for graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received. Shutting down gracefully...');
-  server.close(() => {
-    console.log('Process terminated');
-  });
 });
