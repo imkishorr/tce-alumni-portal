@@ -1,0 +1,14 @@
+/* Add TCE theme colors */
+:root {
+  --tce-primary: #003366;
+  --tce-secondary: #FF6600;
+  --tce-light: #F5F5F5;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--tce-light);
+}
+
+/* Add more styles to match tce.edu */
