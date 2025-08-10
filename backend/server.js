@@ -17,7 +17,7 @@ console.log('Loaded environment variables:', {
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
+  origin: process.env.FRONTEND_URL,
   credentials: true
 }));
 app.use(express.json());
