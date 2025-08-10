@@ -1,0 +1,45 @@
+.placement-overview-container {
+  max-width: 900px;          /* limit width for readability */
+  margin: 40px auto;         /* center horizontally with some top/bottom margin */
+  padding: 20px 30px;        /* inside spacing */
+  background: #f9f9f9;       /* light background */
+  border-radius: 10px;       /* rounded corners */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* subtle shadow */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  line-height: 1.6;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: #1a73e8;           /* bright blue for heading */
+  text-align: center;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.content {
+  font-size: 1.1rem;
+}
+
+.paragraph {
+  margin-bottom: 16px;
+  text-align: justify;
+}
+
+@media (max-width: 600px) {
+  .placement-overview-container {
+    padding: 15px 20px;
+    margin: 20px 10px;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .content {
+    font-size: 1rem;
+  }
+}
