@@ -7,7 +7,7 @@
   "main": "index.js",
   "scripts": {
     "start": "react-scripts start",
-   "build": "react-scripts build",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint .",
@@ -41,6 +41,7 @@
     "@mui/material": "^5.15.0",
     "axios": "^1.6.2",
     "firebase": "^10.8.0",
+    "framer-motion": "^12.23.12",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.20.0",
