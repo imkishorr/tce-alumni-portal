@@ -1,129 +1,120 @@
-// Load environment variables first
-require('dotenv').config({ path: path.join(__dirname, '.env') });
-
+// server.js - Production-ready configuration
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const admin = require('firebase-admin');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 
-// Debug environment check
-console.log('Loaded environment variables:', {
-  FRONTEND_URL: process.env.FRONTEND_URL,
-  NODE_ENV: process.env.NODE_ENV,
-  PORT: process.env.PORT
+// Configuration Constants
+const CONFIG = {
+  PORT: process.env.PORT || 10000,
+  NODE_ENV: process.env.NODE_ENV || 'development',
+  FRONTEND_URL: process.env.FRONTEND_URL || 'https://tce-alumni-portal.vercel.app',
+  FIREBASE: {
+    useEnv: !!process.env.FIREBASE_SERVICE_ACCOUNT_JSON,
+    configPath: './config/firebase-service-account.json'
+  }
+};
+
+console.log('Server starting with configuration:', {
+  ...CONFIG,
+  FIREBASE: { ...CONFIG.FIREBASE, useEnv: Boolean(CONFIG.FIREBASE.useEnv) }
 });
 
-// Middleware - Updated CORS configuration
+// Middleware Configuration
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'https://tce-alumni-portal.vercel.app',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  origin: CONFIG.FRONTEND_URL,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Enhanced Firebase Admin Setup
-if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+// Firebase Initialization
+const initializeFirebase = () => {
   try {
-    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-      databaseURL: process.env.FIREBASE_DATABASE_URL
-    });
-    console.log('Firebase Admin initialized from env vars.');
+    if (CONFIG.FIREBASE.useEnv) {
+      admin.initializeApp({
+        credential: admin.credential.cert(
+          JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON)
+        ),
+        databaseURL: process.env.FIREBASE_DATABASE_URL
+      });
+    } else if (fs.existsSync(CONFIG.FIREBASE.configPath)) {
+      admin.initializeApp({
+        credential: admin.credential.cert(require(CONFIG.FIREBASE.configPath)),
+        databaseURL: process.env.FIREBASE_DATABASE_URL
+      });
+    }
+    console.log('Firebase initialized successfully');
   } catch (error) {
-    console.error('Firebase env var initialization error:', error);
+    console.error('Firebase initialization failed:', error.message);
+    if (CONFIG.NODE_ENV === 'production') process.exit(1);
   }
-} else {
-  try {
-    const serviceAccount = require('./config/firebase-service-account.json');
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-      databaseURL: process.env.FIREBASE_DATABASE_URL
+};
+initializeFirebase();
+
+// Route Configuration - SIMPLIFIED to avoid path-to-regexp issues
+const configureRoutes = () => {
+  // Basic route to verify server is running
+  app.get('/api/status', (req, res) => {
+    res.json({ 
+      status: 'active', 
+      environment: CONFIG.NODE_ENV,
+      timestamp: new Date().toISOString()
     });
-    console.log('Firebase Admin initialized from file.');
+  });
+
+  // Load other routes safely
+  try {
+    app.use('/api/placement', require('./routes/placementRoutes'));
+    app.use('/api/auth', require('./routes/authRoutes'));
+    console.log('Routes configured successfully');
   } catch (error) {
-    console.error('Firebase file initialization error:', error);
+    console.error('Route configuration failed:', error.message);
+    if (CONFIG.NODE_ENV === 'production') process.exit(1);
+  }
+};
+configureRoutes();
+
+// Production Frontend Serving
+if (CONFIG.NODE_ENV === 'production') {
+  const frontendPath = path.join(__dirname, '../frontend/build');
+  
+  if (fs.existsSync(frontendPath)) {
+    app.use(express.static(frontendPath));
+    
+    // Handle client-side routing
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(frontendPath, 'index.html'));
+    });
+    console.log('Production frontend configured');
+  } else {
+    console.warn('Frontend build not found at:', frontendPath);
   }
 }
 
-// Route loading with better error handling
-const loadRoutes = async () => {
-  try {
-    const placementRoutes = require('./routes/placementRoutes');
-    const authRoutes = require('./routes/authRoutes');
-
-    // Fixed route paths without regex issues
-    app.use('/api/placement', placementRoutes);
-    app.use('/api/auth', authRoutes);
-
-    console.log('Routes loaded successfully');
-  } catch (error) {
-    console.error('Route loading error:', error);
-    throw error;
-  }
-};
-
-// Serve React frontend in production
-const setupProduction = () => {
-  if (process.env.NODE_ENV === 'production') {
-    const frontendPath = path.join(__dirname, '../frontend/build');
-    
-    // Verify the build exists
-    try {
-      require('fs').accessSync(frontendPath);
-      app.use(express.static(frontendPath));
-      
-      // Fixed catch-all route
-      app.get('*', (req, res) => {
-        res.sendFile(path.join(frontendPath, 'index.html'));
-      });
-      console.log('Production frontend configured');
-    } catch (err) {
-      console.error('Frontend build not found:', err);
-    }
-  }
-};
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'healthy',
-    environment: process.env.NODE_ENV,
-    timestamp: new Date().toISOString()
-  });
+// Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error('Server error:', err.stack);
+  res.status(500).json({ error: 'Internal Server Error' });
 });
 
-// Initialize server
-const startServer = async () => {
-  try {
-    await loadRoutes();
-    setupProduction();
+// Start Server
+app.listen(CONFIG.PORT, () => {
+  console.log(`Server running on port ${CONFIG.PORT} in ${CONFIG.NODE_ENV} mode`);
+});
 
-    const PORT = process.env.PORT || 5000;
-    const server = app.listen(PORT, () => {
-      console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-    });
+// Process Event Handlers
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Rejection:', reason);
+});
 
-    // Enhanced error handlers
-    process.on('unhandledRejection', (err) => {
-      console.error('Unhandled Rejection:', err);
-      server.close(() => process.exit(1));
-    });
-
-    process.on('uncaughtException', (err) => {
-      console.error('Uncaught Exception:', err);
-      server.close(() => process.exit(1));
-    });
-
-  } catch (error) {
-    console.error('Server initialization failed:', error);
-    process.exit(1);
-  }
-};
-
-startServer();
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  process.exit(1);
+});
