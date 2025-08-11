@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "https://tcekishore.web.app/",
+      "permanent": true
+    }
+  ]
+}
