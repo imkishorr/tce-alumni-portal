@@ -1,0 +1,13 @@
+body.light {
+  background-color: white;
+  color: black;
+}
+
+body.dark {
+  background-color: #121212;
+  color: white;
+}
+
+button {
+  font-size: 14px;
+}
