@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Typography,
   Box,
-  Divider,
   Grid,
   Container,
   Fade,
@@ -20,7 +19,6 @@ const PlacementOverview = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
-  // Animation controls
   const controls = useAnimation();
   const [ref, inView] = useInView({
     threshold: 0.1,
@@ -33,7 +31,6 @@ const PlacementOverview = () => {
     }
   }, [controls, inView]);
 
-  // Static placement sections
   const sections = [
     {
       content: `
@@ -44,15 +41,15 @@ const PlacementOverview = () => {
     {
       content: `
         <h3>Achievements</h3>
-        <p> TCE set a new benchmark in 2023 placements with a record ₹32 LPA offer, reflecting its growing industry prestige and student excellence.</p>
+        <p>TCE consistently secures stellar campus placements with top-tier recruiters, achieving record-breaking offer counts year after year.</p>
+        <p> Two IT department students received offers from Amazon with a ₹45 LPA package, marking a record-high salary in the college’s placement history.</p>
       `
     }
   ];
 
-  // Floating bubbles for background
   const Bubble = ({ size, left, top, delay }) => (
     <motion.div
-      initial={{ opacity: 0, y: 5 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{
         opacity: [0, 0.3, 0],
         y: [0, -100],
@@ -114,7 +111,6 @@ const PlacementOverview = () => {
         }
       }}
     >
-      {/* Floating bubbles */}
       {[...Array(15)].map((_, i) => (
         <Bubble
           key={i}
@@ -125,7 +121,6 @@ const PlacementOverview = () => {
         />
       ))}
 
-      {/* Placement Officer Section */}
       <Fade in timeout={1000}>
         <Box
           sx={{
@@ -139,7 +134,7 @@ const PlacementOverview = () => {
             border: '1px solid rgba(255,255,255,0.3)'
           }}
           component={motion.div}
-          initial={{ y: 10, opacity: 0 }}
+          initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
           whileHover={{ 
@@ -225,12 +220,6 @@ const PlacementOverview = () => {
                       transition: 'transform 0.3s ease-out'
                     }
                   }}
-                  whileHover={{
-                    '&::after': {
-                      transform: 'scaleX(1)',
-                      transformOrigin: 'left'
-                    }
-                  }}
                 >
                   Dr. G. K. Raajesh
                 </Box>
@@ -241,19 +230,19 @@ const PlacementOverview = () => {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5, staggerChildren: 0.1 }}
               >
-                <Typography sx={{ mb: 2, fontSize: '1.1rem' }}>
+                <Typography sx={{ mb: 2, fontSize: '1.1rem', color: tceBlue }}>
                   Thiagarajar College of Engineering, Madurai 625015
                 </Typography>
-                <Typography sx={{ mb: 1, fontSize: '1.1rem' }}>
+                <Typography sx={{ mb: 1, fontSize: '1.1rem', color: tceBlue }}>
                   <strong>Telephone:</strong> +91 452 2482240, 2482241, 2482242
                 </Typography>
-                <Typography sx={{ mb: 1, fontSize: '1.1rem' }}>
+                <Typography sx={{ mb: 1, fontSize: '1.1rem', color: tceBlue }}>
                   <strong>Cell:</strong> 9443388243
                 </Typography>
-                <Typography sx={{ mb: 1, fontSize: '1.1rem' }}>
+                <Typography sx={{ mb: 1, fontSize: '1.1rem', color: tceBlue }}>
                   <strong>Fax:</strong> +91 452 2483427
                 </Typography>
-                <Typography sx={{ fontSize: '1.1rem' }}>
+                <Typography sx={{ fontSize: '1.1rem', color: tceBlue }}>
                   <strong>Email:</strong> placement@tce.edu
                 </Typography>
               </motion.div>
@@ -262,7 +251,6 @@ const PlacementOverview = () => {
         </Box>
       </Fade>
 
-      {/* Static Sections */}
       <Container maxWidth="lg" sx={{ mt: 6, position: 'relative' }}>
         {sections.map((section, i) => (
           <Grow in timeout={800 + (i * 200)} key={i}>
@@ -303,49 +291,34 @@ const PlacementOverview = () => {
                 }
               }}
               component={motion.div}
-              whileHover={{ 
-                scale: 1.01,
-              }}
+              whileHover={{ scale: 1.01 }}
               dangerouslySetInnerHTML={{ __html: section.content }}
             />
           </Grow>
         ))}
       </Container>
 
-      {/* Footer - Updated to remove color animation */}
-    {/* Footer */}
-<Fade in timeout={1500}>
-  <Box 
-    sx={{ 
-      py: 3, 
-      textAlign: 'center', 
-      backgroundColor: 'rgba(255,255,255,0.95)',
-      mt: 4,
-      position: 'relative',
-      '&::before': {
-        content: '""',
-        position: 'absolute',
-        top: 0,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: '80%',
-        height: 1,
-        background: `linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.1) 50%, transparent 100%)`
-      }
-    }}
-    component={motion.div}
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 1 }}
-  >
-    <Typography 
-      variant="body2" 
-      sx={{ color: 'rgba(0, 0, 0, 0.6)' }} // Neutral gray color
-    >
-      © {new Date().getFullYear()} Created by KISHORE@tce.
-    </Typography>
-  </Box>
-</Fade>
+      <Fade in timeout={1500}>
+        <Box 
+          sx={{ 
+            py: 3, 
+            textAlign: 'center', 
+            backgroundColor: 'rgba(255,255,255,0.95)',
+            mt: 4
+          }}
+          component={motion.div}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1 }}
+        >
+          <Typography 
+            variant="body2" 
+            color="text.secondary"
+          >
+            © {new Date().getFullYear()} Created by KISHORE@tce.
+          </Typography>
+        </Box>
+      </Fade>
     </Box>
   );
 };
