@@ -2,7 +2,7 @@
   "redirects": [
     {
       "source": "/",
-      "destination": "https://kishore.web.app",
+      "destination": "https://tcekishore.web.app/",
       "permanent": true
     }
   ]
