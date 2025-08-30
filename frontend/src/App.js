@@ -1,11 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-// Layout
+import ProtectedRoute from './components/ProtectedRoute';
 import DashboardLayout from './components/DashboardLayout';
+import DashboardPage from './pages/DashboardPage';
+
 
 // Pages
 import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/DashboardPage';
 import PlacementOverview from './pages/PlacementOverview';
 import PlacementStatistics from './pages/PlacementStatistics';
 import DepartmentsPage from './pages/DepartmentsPage';
@@ -21,17 +22,41 @@ function App() {
         {/* Login Page */}
         <Route path="/" element={<LoginPage />} />
 
-        {/* Dashboard Routes */}
-        <Route path="/dashboard" element={<DashboardLayout><DashboardPage /></DashboardLayout>} />
-        <Route path="/dashboard/placement-officer" element={<DashboardLayout><PlacementOverview /></DashboardLayout>} />
-        <Route path="/dashboard/placement/statistics" element={<DashboardLayout><PlacementStatistics /></DashboardLayout>} />
-        <Route path="/dashboard/departments" element={<DashboardLayout><DepartmentsPage /></DashboardLayout>} />
+        {/* Dashboard Routes (Protected) */}
+        <Route
+          path="/dashboard"
+          element={<ProtectedRoute><DashboardLayout><DashboardPage /></DashboardLayout></ProtectedRoute>}
+        />
+        <Route
+          path="/dashboard/placement-officer"
+          element={<ProtectedRoute><DashboardLayout><PlacementOverview /></DashboardLayout></ProtectedRoute>}
+        />
+        <Route
+          path="/dashboard/placement/statistics"
+          element={<ProtectedRoute><DashboardLayout><PlacementStatistics /></DashboardLayout></ProtectedRoute>}
+        />
+        <Route
+          path="/dashboard/departments"
+          element={<ProtectedRoute><DashboardLayout><DepartmentsPage /></DashboardLayout></ProtectedRoute>}
+        />
 
-        {/* Department Routes */}
-        <Route path="/departments/it" element={<DashboardLayout><ITDepartmentPage /></DashboardLayout>} />
-        <Route path="/departments/it/alumni/2025" element={<DashboardLayout><Alumni2025 /></DashboardLayout>} />
-        <Route path="/departments/it/alumni/2024" element={<DashboardLayout><Alumni2024 /></DashboardLayout>} />
-        <Route path="/departments/it/alumni/:year" element={<DashboardLayout><AlumniYearPage /></DashboardLayout>} />
+        {/* Department Routes (Protected) */}
+        <Route
+          path="/departments/it"
+          element={<ProtectedRoute><DashboardLayout><ITDepartmentPage /></DashboardLayout></ProtectedRoute>}
+        />
+        <Route
+          path="/departments/it/alumni/2025"
+          element={<ProtectedRoute><DashboardLayout><Alumni2025 /></DashboardLayout></ProtectedRoute>}
+        />
+        <Route
+          path="/departments/it/alumni/2024"
+          element={<ProtectedRoute><DashboardLayout><Alumni2024 /></DashboardLayout></ProtectedRoute>}
+        />
+        <Route
+          path="/departments/it/alumni/:year"
+          element={<ProtectedRoute><DashboardLayout><AlumniYearPage /></DashboardLayout></ProtectedRoute>}
+        />
 
         {/* Fallback Route */}
         <Route path="*" element={<Navigate to="/" />} />
