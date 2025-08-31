@@ -1,4 +1,6 @@
 import React, { useEffect } from 'react';
+import Chatbot from "../components/Chatbot";
+import { useState } from "react";
 import { 
   Typography, 
   Box, 
@@ -105,6 +107,7 @@ const DashboardPage = () => {
     threshold: 0.1,
     triggerOnce: true
   });
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     if (inView) {
@@ -456,45 +459,50 @@ const DashboardPage = () => {
           </Typography>
         </Box>
 
-        {/* Floating TCE badge */}
-        <motion.div
-          style={{
-            position: 'fixed',
-            bottom: 20,
-            right: 20,
-            zIndex: 1000
-          }}
-          animate={{
-            y: [0, -10, 0],
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        >
-          <Paper
-            elevation={6}
-            sx={{
-              p: 1.5,
-              borderRadius: '50%',
-              background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-              color: 'white',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 60,
-              height: 60,
-              cursor: 'pointer',
-              '&:hover': {
-                transform: 'scale(1.1)'
-              }
-            }}
-            onClick={() => window.open('https://www.tce.edu/', '_blank')}
-          >
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>TCE</Typography>
-          </Paper>
-        </motion.div>
+      {/* Floating TCE Chatbot button */}
+<motion.div
+  style={{
+    position: 'fixed',
+    bottom: 20,
+    right: 20,
+    zIndex: 1000
+  }}
+  animate={{
+    y: [0, -10, 0],
+  }}
+  transition={{
+    duration: 3,
+    repeat: Infinity,
+    ease: "easeInOut",
+  }}
+>
+  <Paper
+    elevation={6}
+    sx={{
+      p: 1.5,
+      borderRadius: '50%',
+      background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+      color: 'white',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 60,
+      height: 60,
+      cursor: 'pointer',
+      '&:hover': {
+        transform: 'scale(1.1)'
+      }
+    }}
+    // ✅ Toggle chatbot open/close
+    onClick={() => setChatOpen((prev) => !prev)}
+  >
+    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>TCE</Typography>
+  </Paper>
+</motion.div>
+
+{/* ✅ Pass open state into chatbot */}
+<Chatbot open={chatOpen} onClose={() => setChatOpen(false)} />
+
       </Box>
     </ThemeProvider>
   );
