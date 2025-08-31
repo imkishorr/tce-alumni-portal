@@ -24,6 +24,16 @@ function App() {
 
         {/* Dashboard Routes (Protected) */}
         <Route
+  path="/dashboard"
+  element={
+    <ProtectedRoute>
+      <DashboardLayout>
+        <DashboardPage />
+      </DashboardLayout>
+    </ProtectedRoute>
+  }
+/>
+        <Route
           path="/dashboard"
           element={<ProtectedRoute><DashboardLayout><DashboardPage /></DashboardLayout></ProtectedRoute>}
         />
