@@ -1,4 +1,6 @@
 import React from 'react';
+import HomeIcon from '@mui/icons-material/Home';
+
 import { 
   Box, 
   Drawer, 
@@ -46,6 +48,7 @@ const DashboardLayout = ({ children }) => {
   };
 
   const navItems = [
+    { name: 'Home', path: '/dashboard', icon: <HomeIcon /> },
     { name: 'Placement Officer', path: '/dashboard/placement-officer', icon: <SchoolIcon /> },
     { name: 'Placement Statistics', path: '/dashboard/placement/statistics', icon: <BarChartIcon /> },
     { name: 'Placement Policy', path: '/PlacementPolicy.pdf', icon: <DescriptionIcon />, external: true },
