@@ -196,7 +196,7 @@ const DashboardPage = () => {
                 display: 'inline-block'
               }}
             >
-              Welcome to Thiagarajar College of Engineering
+              Welcome to TCE Alumni Portal
             </Typography>
           </motion.div>
           <motion.div
@@ -496,7 +496,7 @@ const DashboardPage = () => {
     // ✅ Toggle chatbot open/close
     onClick={() => setChatOpen((prev) => !prev)}
   >
-    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>TCE</Typography>
+    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>BOT</Typography>
   </Paper>
 </motion.div>
 
